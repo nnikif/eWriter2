@@ -221,7 +221,7 @@ func getCursorParagraphInfo(text: String, cursorPosition: Int, selectionStart: I
         
     }
     
-    guard !(paragraphIndex == 0 && positionInParagraph == 0) else {
+    if cursorPosition > text.count {
         cursorParagraphInfo = CursorParagraphInfo(paragraphIndex: lastIndex, positionInParagraph: lastParagraphLength, selectionInfo: convertSelectionInfoToJSONString(selectionInfo: selectionInfo))
         return cursorParagraphInfo
     }
@@ -257,29 +257,29 @@ func convertSelectionInfoToJSONString(selectionInfo: [(paragraphIndex: Int, star
 }
 
 func recalculateCursorPosition(text: String, position: Int) -> Int {
-    guard position >= 0 && position <= text.count else {
-            print("Position out of bounds.")
-            return position
-        }
-        
-        // Get the substring up to the given position
-        let index = text.index(text.startIndex, offsetBy: position)
-        let substring = text[text.startIndex..<index]
-        
-        // Count the occurrences of '\n' in the substring
-        let numberOfLineBreaks = substring.filter { $0 == "\n" }.count
-        
-        return position + numberOfLineBreaks
-    
+    guard position >= 0 else {
+        print("Position out of bounds.")
+        return 0
+    }
+
+    var visibleCount = 0
+
+    for (actualIndex, char) in text.enumerated() {
+        if char == "\n" { continue }
+        if visibleCount == position { return actualIndex }
+        visibleCount += 1
+    }
+
+    return text.count
 }
 
 func recalculateSelectionPosition(text: String, position: Int, start: Bool) -> Int {
-    let basePosition = recalculateCursorPosition(text: text, position: position)
-//    print("basePosition: \(basePosition), start: \(start)")
-    guard basePosition >= 0  else { return 0 }
-    guard basePosition < text.count else { return text.count }
+    let actualPosition = recalculateCursorPosition(text: text, position: position)
+//    print("basePosition: \(actualPosition), start: \(start)")
+    guard actualPosition >= 0  else { return 0 }
+    guard actualPosition < text.count else { return text.count }
     let characters = Array(text)
-    var newPosition = basePosition
+    var newPosition = actualPosition
     var currentChar: Character
     
     if start {

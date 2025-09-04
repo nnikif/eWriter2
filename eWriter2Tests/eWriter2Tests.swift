@@ -18,19 +18,18 @@ final class eWriter2Tests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testRecalculateCursorPositionAcrossNewlines() throws {
+        let text = "line1\nline2\nline3"
+        XCTAssertEqual(recalculateCursorPosition(text: text, position: 5), 6)
+        XCTAssertEqual(recalculateCursorPosition(text: text, position: 10), 12)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    func testGetCursorParagraphInfoAtDocumentStart() throws {
+        let text = "line1\nline2"
+        let info = getCursorParagraphInfo(text: text, cursorPosition: 0, selectionStart: nil, selectionEnd: nil)
+        XCTAssertNotNil(info)
+        XCTAssertEqual(info?.paragraphIndex, 0)
+        XCTAssertEqual(info?.positionInParagraph, 0)
     }
 
 }
